@@ -2,28 +2,30 @@ package com.mycompany.parcial_2;
 
 import static spark.Spark.*;
 import com.google.gson.Gson;
-
 import java.util.LinkedList;
 
-public class Parcial_2 {
+public class Main {
 
     public static void main(String[] args) {
         System.out.println("Hello World!");
         /*
-        * Esto nos sirve para generar un formato json para retornar la data del array
-        * sin tener que acomodarla bonita de manera manual
+    * Esto nos sirve para generar un formato json para retornar la data del array
+    * sin tener que acomodarla bonita de manera manual
          */
         Gson gson = new Gson();
 
-        LinkedList<Vehiculo> automoviles = new LinkedList<>();
+        LinkedList<Automovil> automoviles = new LinkedList<>();
         LinkedList<Motocicleta> motos = new LinkedList<>();
+        LinkedList<Vehiculo> AutomovilesActuales = new LinkedList<>();
 
         // Automovil creado por defecto
-        Automovil auto = new Automovil(4, "quicha", "3", "ZYX987", 6);
+        Automovil auto = new Automovil(4, "Mazda", "3", "ZYX987", 6);
         automoviles.add(auto);
+        AutomovilesActuales.add(auto);
 
         Motocicleta moto = new Motocicleta(600, "Honda", "CBR600", "XYZ789", 6);
         motos.add(moto);
+        AutomovilesActuales.add(moto);
 
         // Definir endpoints
         // Por defecto 
@@ -57,6 +59,7 @@ public class Parcial_2 {
             // Crear un nuevo automóvil y agregarlo al parqueadero
             Automovil nuevoAuto = new Automovil(numeroPuertas, marca, modelo, placa, horaIngreso);
             automoviles.add(nuevoAuto);
+            AutomovilesActuales.add(nuevoAuto);
 
             return gson.toJson(nuevoAuto);
         });
@@ -77,23 +80,49 @@ public class Parcial_2 {
             // Crear un nuevo automóvil y agregarlo al parqueadero
             Motocicleta nuevaMoto = new Motocicleta(cilindrada, marca, modelo, placa, horaIngreso);
             motos.add(nuevaMoto);
+            AutomovilesActuales.add(nuevaMoto);
 
             return gson.toJson(nuevaMoto);
         });
 
-        get("/sacarVehiculo/:placa/:horaSalida", (req, res) -> {
+        get("/sacarAutomovil/:placa/:horaSalida", (req, res) -> {
             String placa = (req.params(":placa"));
             int horaSalida = Integer.parseInt(req.params(":horaSalida"));
             res.type("application/json");
+            String mensaje = "0";
             for (Vehiculo vehiculo : automoviles) {
                 if (vehiculo.getPlaca().equalsIgnoreCase(placa)) {
                     vehiculo.setHoraSalida(horaSalida);
+                    AutomovilesActuales.remove(vehiculo);
+                    mensaje = "Vehiculo sacado con exito";
                     break;
-                }else(){
-                    String mensaje = "No se encontro vehiculo";
-                };
+                } else {
+                    mensaje = "No se encontro vehiculo";
+                }
             }
             return gson.toJson(mensaje);
+        });
+        get("/sacarMoto/:placa/:horaSalida", (req, res) -> {
+            String placa = (req.params(":placa"));
+            int horaSalida = Integer.parseInt(req.params(":horaSalida"));
+            res.type("application/json");
+            String mensaje = "0";
+            for (Vehiculo vehiculo : motos) {
+                if (vehiculo.getPlaca().equalsIgnoreCase(placa)) {
+                    vehiculo.setHoraSalida(horaSalida);
+                    AutomovilesActuales.remove(vehiculo);
+                    mensaje = "Vehiculo sacado con exito";
+                    break;
+                } else {
+                    mensaje = "No se encontro vehiculo";
+                }
+            }
+            return gson.toJson(mensaje);
+        });
+        // Listado de automovile
+        get("/AutomovilesActuales", (req, res) -> {
+            res.type("application/json");
+            return gson.toJson(AutomovilesActuales);
         });
 
     }
